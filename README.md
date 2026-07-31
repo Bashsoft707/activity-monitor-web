@@ -4,13 +4,19 @@ Next.js frontend for the real-time activity monitor. Shows a live feed of logged
 events and a **Simulate Event** button that writes a new one.
 
 - **Live app:** _(Vercel URL — pending deploy)_
-- **API:** _(Railway URL — pending deploy)_
+- **API:** _(Render URL — pending deploy)_
 - **API repository:** https://github.com/Bashsoft707/activity-monitor-api
+
+> **A note on hosting.** The brief specifies Railway for the backend. Railway
+> discontinued its free tier and the trial credit has expired, so the API runs on
+> **Render** instead — also a persistent container, with a free tier that keeps the
+> demo link alive. The frontend is on Vercel as specified. No code is
+> platform-specific; see the API repository for the details.
 
 ## This app is a socket client, never a socket server
 
 ```
-Next.js on Vercel  ──REST──▶  Express on Railway  ──▶  PostgreSQL
+Next.js on Vercel  ──REST──▶  Express on Render  ──▶  PostgreSQL on Neon
    (socket CLIENT)  ◀─WS───    (socket SERVER)
 ```
 
@@ -20,7 +26,7 @@ created per request and torn down afterwards, so they cannot hold the long-lived
 TCP connection a WebSocket needs. A socket server in a Next.js API route looks
 fine under `next dev` — one long-running process — and then fails in production
 once each request lands on a different short-lived instance. The server lives in
-the Express app on Railway, which runs a persistent container.
+the Express app on Render, which runs a persistent container.
 
 ## How the feed stays in sync
 
@@ -71,8 +77,8 @@ origin you are serving from not being present in the API's `CORS_ORIGIN` allowli
 
 1. Import the repository at [vercel.com/new](https://vercel.com/new). Next.js is
    detected automatically; no build settings need changing.
-2. Add `NEXT_PUBLIC_API_URL` pointing at the Railway domain, e.g.
-   `https://activity-monitor-api.up.railway.app` — no trailing slash.
+2. Add `NEXT_PUBLIC_API_URL` pointing at the Render domain, e.g.
+   `https://activity-monitor-api.onrender.com` — no trailing slash.
 3. Deploy, then add the resulting Vercel domain to the API's `CORS_ORIGIN` and
    redeploy the API.
 
