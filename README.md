@@ -87,6 +87,44 @@ Two things that catch people out:
   explicitly. Either test against the production domain or add the specific
   preview URL.
 
+## Tests
+
+```bash
+npm test          # 48 tests
+npm run test:watch
+```
+
+Vitest with Testing Library and jsdom. No API or database needed — `fetch` is
+mocked and the socket is replaced by a controllable fake.
+
+| Suite | Covers |
+|---|---|
+| `tests/lib/api.test.ts` | Request shapes, the `data` envelope, and error messages that name the URL they tried |
+| `tests/lib/simulate.test.ts` | The Simulate payloads never repeat the previous type and never send a `channel` |
+| `tests/hooks/useActivityFeed.test.ts` | REST load, socket subscription, de-duplication, connection state, the 100-row cap, toast auto-dismiss, unmount cleanup |
+| `tests/app/page.test.tsx` | UI reactivity — what a viewer sees change when an event arrives |
+
+The socket is faked rather than real, and that is the point: the interesting
+behaviour here is *ordering*. Tests need to deliver an event before, during, or
+after the REST load to prove de-duplication works, and a real connection cannot be
+timed that precisely. `tests/helpers/fake-socket.ts` implements only the surface
+the hook touches and exposes `fromServer(name, payload)` to drive emissions by hand.
+
+Three cases are worth calling out:
+
+- **The REST/socket race.** An event delivered by the socket that the initial fetch
+  already returned must produce one row, not two. This is a real race, not a
+  hypothetical — the fetch and the handshake run concurrently.
+- **An SMS-routed event renders a feed row but no toast.** The server emits feed
+  rows and push notifications as separate messages, and the UI has to keep them
+  separate too.
+- **The Simulate button's fallback does not double-add.** The socket normally
+  delivers the created event first; adding the POST response as well must
+  de-duplicate rather than duplicate.
+
+Tests live outside `src/`, so they are type-checked by `npm run typecheck` and
+`next build` but never bundled.
+
 ## Project structure
 
 ```
@@ -101,6 +139,9 @@ src/
     api.ts              fetchEvents / createEvent
     types.ts            ActivityEvent contract and socket event names
     simulate.ts         payloads for the Simulate Event button
+tests/
+  helpers/              fake socket client, event factory
+  lib/ hooks/ app/      mirrors the src layout
 ```
 
 `src/lib/types.ts` restates the API's `EventDTO` rather than importing it, because
