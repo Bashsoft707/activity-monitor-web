@@ -3,9 +3,14 @@
 Next.js frontend for the real-time activity monitor. Shows a live feed of logged
 events and a **Simulate Event** button that writes a new one.
 
-- **Live app:** _(Vercel URL — pending deploy)_
-- **API:** _(Render URL — pending deploy)_
+- **Live app:** https://activity-monitor-web.vercel.app
+- **API:** https://activity-monitor-api.onrender.com
+- **Repository:** https://github.com/Bashsoft707/activity-monitor-web
 - **API repository:** https://github.com/Bashsoft707/activity-monitor-api
+
+> The API runs on Render's free tier and sleeps after 15 minutes without traffic.
+> If the feed takes up to a minute to appear on a cold visit, the container is
+> waking up.
 
 > **A note on hosting.** The brief specifies Railway for the backend. Railway
 > discontinued its free tier and the trial credit has expired, so the API runs on
